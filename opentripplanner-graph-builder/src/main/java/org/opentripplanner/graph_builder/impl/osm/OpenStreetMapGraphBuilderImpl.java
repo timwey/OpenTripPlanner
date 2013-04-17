@@ -1093,6 +1093,13 @@ public class OpenStreetMapGraphBuilderImpl implements GraphBuilder {
                 StreetTraversalPermission areaPermissions = getPermissionsForEntity(areaEntity,
                         StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE);
 
+                // test if the area is tagged wheelchair=no
+                boolean wheelchairAccessible = true;
+
+                if (areaEntity.isTagFalse("wheelchair")) {
+                    wheelchairAccessible = false;
+                }
+
                 float carSpeed = wayPropertySet.getCarSpeedForWay(areaEntity, false);
 
                 double length = distanceLibrary.distance(startEndpoint.getCoordinate(),
@@ -1109,6 +1116,9 @@ public class OpenStreetMapGraphBuilderImpl implements GraphBuilder {
                 AreaEdge street = edgeFactory.createAreaEdge(fromNode, toNode, areaEntity,
                         startEndpoint, endEndpoint, line, name, length, areaPermissions, false,
                         carSpeed, edgeList);
+                
+                // set the value for the wheelchair tag 
+                street.setWheelchairAccessible(wheelchairAccessible);
 
                 street.setStreetClass(cls);
                 edges.add(street);
@@ -1121,7 +1131,10 @@ public class OpenStreetMapGraphBuilderImpl implements GraphBuilder {
                 AreaEdge backStreet = edgeFactory.createAreaEdge(toNode, fromNode, areaEntity,
                         endEndpoint, startEndpoint, (LineString) line.reverse(), name, length,
                         areaPermissions, true, carSpeed, edgeList);
-
+                
+                // set the value for the wheelchair tag (also for the backStreet)
+                backStreet.setWheelchairAccessible(wheelchairAccessible);
+ 
                 backStreet.setStreetClass(cls);
                 edges.add(backStreet);
 
