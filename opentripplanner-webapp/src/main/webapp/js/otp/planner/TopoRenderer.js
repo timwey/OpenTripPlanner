@@ -57,6 +57,9 @@ otp.planner.TopoRendererStatic = {
     metricsSystem :   	null, 
     unitRepresentation :	null, 
     elevInterval	:	null, 
+    /** Set this value to the lowest occuring elevation value of your data
+        Unit = meter*/
+    defaultLowestElevValue : 490, // has to be a value >1
     THIS          :     null,
 
     /** */
@@ -112,6 +115,9 @@ otp.planner.TopoRendererStatic = {
                 }
                 var elevArr = steps[si].elevation.split(","); 
                 for (var ei = 1; ei < elevArr.length; ei+=2) {
+                    // in case the route exceeds the area covered by elevation data, ignore the elevation value and continue
+                    if(elevArr[ei] < this.defaultLowestElevValue) continue;
+                   
                     var elev;
                     if(this.metricsSystem == 'international')
                     	elev = elevArr[ei]; //convert to feet 
@@ -354,7 +360,10 @@ otp.planner.TopoRendererStatic = {
                         for (var j = 0; j < elevArr.length-1; j+=2) {
                             var posM = elevArr[j];
                             
-                            var elev; //CHANGE 04/12/13
+                            // in case the route exceeds the area covered by elevation data, take the default value for the path´s topography
+                            if(elevArr[j+1] < this.defaultLowestElevValue) elevArr[j+1] = this.defaultLowestElevValue;
+                            
+                            var elev; 
                             if(this.metricsSystem == 'international')
                             	elev = elevArr[j+1];
                             else
@@ -367,7 +376,7 @@ otp.planner.TopoRendererStatic = {
                             yCoords.push(y);
                             legXCoords.push(x);
                             legYCoords.push(y);
-                            previewXCoords.push((width - this.axisWidth)*x/(width - this.axisWidth));//CHANGE 04/12/13 change form terrainwidth to width
+                            previewXCoords.push((width - this.axisWidth)*x/(width - this.axisWidth));
                             previewYCoords.push(previewHeight * (0.8 - 0.6*(elev-this.minElev)/(this.maxElev-this.minElev)));
                         }
 
